@@ -25,10 +25,13 @@ def main():
     icon = pygame.image.load("res/icon.png")
     pygame.display.set_icon(icon)
 
-    gameState = ChessEngine.GameState()
     loadImages()
 
+    gameState = ChessEngine.GameState()
+    validMoves = gameState.getValidMoves()
+
     run = True
+    awaitingMove = True
 
     selectedSquare = ()
     moveStartEnd = []
@@ -49,7 +52,10 @@ def main():
                     moveStartEnd.append(selectedSquare)
                 if len(moveStartEnd) == 2:
                     move = ChessEngine.Move(moveStartEnd[0], moveStartEnd[1], gameState.board)
-                    gameState.move(move)
+                    if move in validMoves:
+                        gameState.move(move)
+                        awaitingMove = False
+
                     selectedSquare = ()
                     moveStartEnd = []
 
@@ -57,6 +63,11 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_z:
                     gameState.undoMove()
+                    validMoves = gameState.getValidMoves()
+
+        if not awaitingMove:
+            validMoves = gameState.getValidMoves()
+            awaitingMove = True
 
         draw(window, gameState)
         pygame.display.update()
