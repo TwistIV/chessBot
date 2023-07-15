@@ -28,7 +28,7 @@ def main():
     loadImages()
 
     gameState = ChessEngine.GameState()
-    validMoves = gameState.getValidMoves()
+    validMoves = gameState.getAllPieceMoves()
 
     run = True
     awaitingMove = True
@@ -49,12 +49,13 @@ def main():
                     moveStartEnd = []
                 else:
                     selectedSquare = (row, col)
-                    moveStartEnd.append(selectedSquare)
+                    moveStartEnd.append((row*8)+col)
                 if len(moveStartEnd) == 2:
                     move = ChessEngine.Move(moveStartEnd[0], moveStartEnd[1], gameState.board)
-                    if move in validMoves:
-                        gameState.move(move)
-                        awaitingMove = False
+                    for validMove in validMoves:
+                        if validMove.startSq == move.startSq and validMove.endSq == move.endSq:
+                            gameState.move(move)
+                            awaitingMove = False
 
                     selectedSquare = ()
                     moveStartEnd = []
@@ -63,10 +64,10 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_z:
                     gameState.undoMove()
-                    validMoves = gameState.getValidMoves()
+                    validMoves = gameState.getAllPieceMoves()
 
         if not awaitingMove:
-            validMoves = gameState.getValidMoves()
+            validMoves = gameState.getAllPieceMoves()
             awaitingMove = True
 
         draw(window, gameState)
@@ -92,7 +93,8 @@ def drawBoard(window):
 def drawPieces(window, board):
     for row in range(8):
         for col in range(8):
-            piece = board[row][col]
+            piece = board[(row*8)+col]
+            #print("Row is " + str(row) + "/n Col is " + str(col) + "/n Piece is " + piece)
             if piece != "--":
                 window.blit(IMAGES[piece], pygame.Rect(col*CELL_SIZE, row*CELL_SIZE, CELL_SIZE, CELL_SIZE))
 

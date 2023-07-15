@@ -1,29 +1,29 @@
 class GameState():
     def __init__(self):
         self.board = [
-            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
-            ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
-            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
+            "bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR",
+            "bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP",
+            "--", "--", "--", "--", "--", "--", "--", "--",
+            "--", "--", "--", "--", "--", "--", "--", "--",
+            "--", "--", "--", "--", "--", "--", "--", "--",
+            "--", "--", "--", "--", "--", "--", "--", "--",
+            "wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP",
+            "wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
         self.whiteToMove = True
         self.moveLog = []
 
     #Updates the board when a move is played
     def move(self, move):
-        self.board[move.endRow][move.endCol] = move.pieceMoved
-        self.board[move.startRow][move.startCol] = "--"
+        self.board[move.endSq] = move.pieceMoved
+        self.board[move.startSq] = "--"
         self.moveLog.append(move)
         self.whiteToMove = not self.whiteToMove
 
     def undoMove(self):
         if len(self.moveLog) != 0:
             move = self.moveLog.pop()
-            self.board[move.endRow][move.endCol] = move.endSquare
-            self.board[move.startRow][move.startCol] = move.pieceMoved
+            self.board[move.endSq] = move.endSquare
+            self.board[move.startSq] = move.pieceMoved
             self.whiteToMove = not self.whiteToMove
 
     #Returns all valid moves
@@ -33,20 +33,31 @@ class GameState():
     #Returns all possible piece moves without considering check
     def getAllPieceMoves(self):
         moves = []
-        for row in range(len(self.board)):
-            for col in range(len(self.board[row])):
-                turn = self.board[row][col][0]
-                if (turn == 'w' and self.whiteToMove) and (turn == 'b' and not self.whiteToMove):
-                    piece = self.board[row][col][1]
-                    if piece == 'p':
-                        self.getPaumMoves(row, col, moves)
-                    elif piece == 'R':
-                        self.getRookMoves(row, col, moves)
+        for square in range(len(self.board)):
+            piece = self.board[square]
+            if piece[1] == 'P':
+                self.getPawnMoves(square, moves)
+        return moves
 
-    def getPawnMoves(self, row, col, moves):
-        if self.whiteToMove:
-            if self.board[row-1][col] == '--':
-                moves.append(Move((row, col), (row-1, col), self.board))
+    def getPawnMoves(self, square, moves):
+        if self.board[square][0] == 'w' and self.whiteToMove:
+            if self.board[square-8] == '--':
+                moves.append(Move(square, square-8, self.board))
+                if self.board[square-16] == '--' and int(square/8) == 6:
+                    moves.append(Move(square, square-16, self.board))
+            if self.board[square-9][0] == 'b':
+                moves.append(Move(square, square-9, self.board))
+            if self.board[square-7][0] == 'b':
+                moves.append(Move(square, square-7, self.board))
+        elif self.board[square][0] == 'b' and not self.whiteToMove:
+            if self.board[square+8] == '--':
+                moves.append(Move(square, square+8, self.board))
+                if self.board[square+16] == '--' and int(square/8) == 1:
+                    moves.append(Move(square, square+16, self.board))
+            if self.board[square+9][0] == 'w':
+                moves.append(Move(square, square+9, self.board))
+            if self.board[square+7][0] == 'w':
+                moves.append(Move(square, square+7, self.board))
 
     def getRookMoves(self):
         pass
@@ -64,15 +75,14 @@ class Move():
     colsToFiles = {v: k for k, v in filesToCols.items()}
 
     def __init__(self, startSq, endSq, board):
-        self.startRow = startSq[0]
-        self.startCol = startSq[1]
-        self.endRow = endSq[0]
-        self.endCol = endSq[1]
-        self.pieceMoved =  board[self.startRow][self.startCol]
-        self.endSquare = board[self.endRow][self.endCol]
+        self.startSq = startSq
+        self.endSq = endSq
+        self.pieceMoved =  board[startSq]
+        self.endSquare = board[endSq]
 
     def __eq__(self, other):
         if isinstance(other, Move):
+            pass
 
 
     #def getNotation(self):
