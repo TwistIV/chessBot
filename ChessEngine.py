@@ -5,7 +5,7 @@ class GameState():
             "bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP",
             "--", "--", "--", "--", "--", "--", "--", "--",
             "--", "--", "--", "--", "--", "--", "--", "--",
-            "--", "--", "--", "--", "--", "--", "--", "--",
+            "--", "--", "--", "wR", "--", "--", "--", "--",
             "--", "--", "--", "--", "--", "--", "--", "--",
             "wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP",
             "wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
@@ -37,9 +37,12 @@ class GameState():
             piece = self.board[square]
             if piece[1] == 'P':
                 self.getPawnMoves(square, moves)
+            elif piece[1] == 'R':
+                self.getRookMoves(square, moves)
         return moves
 
     def getPawnMoves(self, square, moves):
+        #Generate white pawn moves
         if self.board[square][0] == 'w' and self.whiteToMove:
             if self.board[square-8] == '--':
                 moves.append(Move(square, square-8, self.board))
@@ -49,6 +52,8 @@ class GameState():
                 moves.append(Move(square, square-9, self.board))
             if self.board[square-7][0] == 'b':
                 moves.append(Move(square, square-7, self.board))
+
+        #Generate black pawn moves
         elif self.board[square][0] == 'b' and not self.whiteToMove:
             if self.board[square+8] == '--':
                 moves.append(Move(square, square+8, self.board))
@@ -59,8 +64,51 @@ class GameState():
             if self.board[square+7][0] == 'w':
                 moves.append(Move(square, square+7, self.board))
 
-    def getRookMoves(self):
-        pass
+    def getRookMoves(self, square, moves):
+        deadEnd = False
+        rank = 8 - int(square/8)
+        file = square%8 + 1
+
+        if self.board[square][0] == 'w' and self.whiteToMove:#To be removed and add boolean denoting whose piece it is, with logic to take that into account during move gen
+            #Left moves
+            for space in range(file-1):
+                #Square being evaluated
+                targetSquare = square-space-1
+                if self.board[targetSquare] == '--' or self.board[targetSquare][0] == 'b':
+                    moves.append(Move(square, targetSquare, self.board))
+                    if self.board[targetSquare][0] == 'b':
+                        break
+                else:
+                    break
+            #Right moves
+            for space in range(8-file):
+                targetSquare = square+space+1
+                if self.board[targetSquare] == '--' or self.board[targetSquare][0] == 'b':
+                    moves.append(Move(square, targetSquare, self.board))
+                    if self.board[targetSquare][0] == 'b':
+                        break
+                else:
+                    break
+            #Up moves
+            for space in range(8-rank):
+                targetSquare = square - (8*(space+1))
+                if self.board[targetSquare] == '--' or self.board[targetSquare][0] == 'b':
+                    moves.append(Move(square, targetSquare, self.board))
+                    if self.board[targetSquare][0] == 'b':
+                        break
+                else:
+                    break
+            #Down moves
+            for space in range(rank-1):
+                targetSquare = square + (8*(space+1))
+                print("Square is " + str(square) + " and target square is " + str(targetSquare))
+                if self.board[targetSquare] == '--' or self.board[targetSquare][0] == 'b':
+                    moves.append(Move(square, targetSquare, self.board))
+                    if self.board[targetSquare][0] == 'b':
+                        break
+                else:
+                    break
+        
 
     def getKnightMoves(self):
         pass
