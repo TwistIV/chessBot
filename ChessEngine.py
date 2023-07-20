@@ -5,7 +5,7 @@ class GameState():
             "bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP",
             "--", "--", "--", "--", "--", "--", "--", "--",
             "--", "--", "--", "--", "--", "--", "--", "--",
-            "--", "--", "--", "wR", "--", "--", "--", "--",
+            "--", "--", "--", "wR", "wB", "--", "--", "--",
             "--", "--", "--", "--", "--", "--", "--", "--",
             "wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP",
             "wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
@@ -38,7 +38,14 @@ class GameState():
             if piece[1] == 'P':
                 self.getPawnMoves(square, moves)
             elif piece[1] == 'R':
-                self.getRookMoves(square, moves)
+                self.getCardinalMoves(square, moves)
+            elif piece[1] == 'B':
+                self.getDiagnoalMoves(square, moves)
+            elif piece[1] == 'Q':
+                self.getCardinalMoves(square, moves)
+                self.getDiagnoalMoves(square, moves)
+            elif piece[1] == 'N':
+                self.getKnightMoves(square, moves)
         return moves
 
     def getPawnMoves(self, square, moves):
@@ -64,56 +71,109 @@ class GameState():
             if self.board[square+7][0] == 'w':
                 moves.append(Move(square, square+7, self.board))
 
-    def getRookMoves(self, square, moves):
-        deadEnd = False
+    def getCardinalMoves(self, square, moves):
         rank = 8 - int(square/8)
         file = square%8 + 1
+        otherPlayer = ''
 
-        if self.board[square][0] == 'w' and self.whiteToMove:#To be removed and add boolean denoting whose piece it is, with logic to take that into account during move gen
-            #Left moves
-            for space in range(file-1):
-                #Square being evaluated
-                targetSquare = square-space-1
-                if self.board[targetSquare] == '--' or self.board[targetSquare][0] == 'b':
-                    moves.append(Move(square, targetSquare, self.board))
-                    if self.board[targetSquare][0] == 'b':
-                        break
-                else:
+        if self.whiteToMove:
+            otherPlayer = 'b'
+        else:
+            otherPlayer = 'w'
+
+        if self.board[square][0] == otherPlayer:
+            return
+
+        #Left moves
+        for space in range(file-1):
+            #Square being evaluated
+            targetSquare = square-space-1
+            if self.board[targetSquare] == '--' or self.board[targetSquare][0] == otherPlayer:
+                moves.append(Move(square, targetSquare, self.board))
+                if self.board[targetSquare][0] == otherPlayer:
                     break
-            #Right moves
-            for space in range(8-file):
-                targetSquare = square+space+1
-                if self.board[targetSquare] == '--' or self.board[targetSquare][0] == 'b':
-                    moves.append(Move(square, targetSquare, self.board))
-                    if self.board[targetSquare][0] == 'b':
-                        break
-                else:
+            else:
+                break
+        #Right moves
+        for space in range(8-file):
+            targetSquare = square+space+1
+            if self.board[targetSquare] == '--' or self.board[targetSquare][0] == otherPlayer:
+                moves.append(Move(square, targetSquare, self.board))
+                if self.board[targetSquare][0] == otherPlayer:
                     break
-            #Up moves
-            for space in range(8-rank):
-                targetSquare = square - (8*(space+1))
-                if self.board[targetSquare] == '--' or self.board[targetSquare][0] == 'b':
-                    moves.append(Move(square, targetSquare, self.board))
-                    if self.board[targetSquare][0] == 'b':
-                        break
-                else:
+            else:
+                break
+        #Up moves
+        for space in range(8-rank):
+            targetSquare = square - (8*(space+1))
+            if self.board[targetSquare] == '--' or self.board[targetSquare][0] == otherPlayer:
+                moves.append(Move(square, targetSquare, self.board))
+                if self.board[targetSquare][0] == otherPlayer:
                     break
-            #Down moves
-            for space in range(rank-1):
-                targetSquare = square + (8*(space+1))
-                print("Square is " + str(square) + " and target square is " + str(targetSquare))
-                if self.board[targetSquare] == '--' or self.board[targetSquare][0] == 'b':
-                    moves.append(Move(square, targetSquare, self.board))
-                    if self.board[targetSquare][0] == 'b':
-                        break
-                else:
+            else:
+                break
+        #Down moves
+        for space in range(rank-1):
+            targetSquare = square + (8*(space+1))
+            if self.board[targetSquare] == '--' or self.board[targetSquare][0] == otherPlayer:
+                moves.append(Move(square, targetSquare, self.board))
+                if self.board[targetSquare][0] == otherPlayer:
                     break
+            else:
+                break
         
+    def getDiagnoalMoves(self, square, moves):
+        rank = 8 - int(square/8)
+        file = square%8 + 1
+        otherPlayer = ''
 
-    def getKnightMoves(self):
+        if self.whiteToMove:
+            otherPlayer = 'b'
+        else:
+            otherPlayer = 'w'
+
+        #Up left moves
+        for space in range(min([file-1, 8-rank])):
+            #Square being evaluated
+            targetSquare = square - (9*(space+1))
+            if self.board[targetSquare] == '--' or self.board[targetSquare][0] == otherPlayer:
+                moves.append(Move(square, targetSquare, self.board))
+                if self.board[targetSquare][0] == otherPlayer:
+                    break
+            else:
+                break
+        #Up right moves
+        for space in range(min([8-file, 8-rank])):
+            targetSquare = square - (7*(space+1))
+            if self.board[targetSquare] == '--' or self.board[targetSquare][0] == otherPlayer:
+                moves.append(Move(square, targetSquare, self.board))
+                if self.board[targetSquare][0] == otherPlayer:
+                    break
+            else:
+                break
+        #Down left moves
+        for space in range(min([file-1, rank-1])):
+            targetSquare = square + (7*(space+1))
+            if self.board[targetSquare] == '--' or self.board[targetSquare][0] == otherPlayer:
+                moves.append(Move(square, targetSquare, self.board))
+                if self.board[targetSquare][0] == otherPlayer:
+                    break
+            else:
+                break
+        #Down right moves
+        for space in range(min([8-file, rank-1])):
+            targetSquare = square + (9*(space+1))
+            if self.board[targetSquare] == '--' or self.board[targetSquare][0] == otherPlayer:
+                moves.append(Move(square, targetSquare, self.board))
+                if self.board[targetSquare][0] == otherPlayer:
+                    break
+            else:
+                break
+
+    def getKnightMoves(self, square, moves):
         pass
 
-    def getBishopMoves(self):
+    def getKingMoves(self, square, moves):
         pass
 
 class Move():

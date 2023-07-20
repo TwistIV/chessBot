@@ -94,7 +94,6 @@ def drawPieces(window, board):
     for row in range(8):
         for col in range(8):
             piece = board[(row*8)+col]
-            #print("Row is " + str(row) + "/n Col is " + str(col) + "/n Piece is " + piece)
             if piece != "--":
                 window.blit(IMAGES[piece], pygame.Rect(col*CELL_SIZE, row*CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
