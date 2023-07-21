@@ -3,7 +3,7 @@ class GameState():
         self.board = [
             "bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR",
             "bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP",
-            "--", "--", "--", "--", "--", "--", "--", "--",
+            "--", "--", "--", "--", "--", "bN", "--", "--",
             "--", "--", "--", "--", "--", "--", "--", "--",
             "--", "--", "--", "wR", "wB", "--", "--", "--",
             "--", "--", "--", "--", "--", "--", "--", "--",
@@ -46,6 +46,8 @@ class GameState():
                 self.getDiagnoalMoves(square, moves)
             elif piece[1] == 'N':
                 self.getKnightMoves(square, moves)
+            elif piece[1] == 'K':
+                self.getKingMoves(square, moves)
         return moves
 
     def getPawnMoves(self, square, moves):
@@ -74,7 +76,6 @@ class GameState():
     def getCardinalMoves(self, square, moves):
         rank = 8 - int(square/8)
         file = square%8 + 1
-        otherPlayer = ''
 
         if self.whiteToMove:
             otherPlayer = 'b'
@@ -125,7 +126,6 @@ class GameState():
     def getDiagnoalMoves(self, square, moves):
         rank = 8 - int(square/8)
         file = square%8 + 1
-        otherPlayer = ''
 
         if self.whiteToMove:
             otherPlayer = 'b'
@@ -171,10 +171,46 @@ class GameState():
                 break
 
     def getKnightMoves(self, square, moves):
-        pass
+        offsets = [6, 10, 15, 17]
+
+        if self.whiteToMove:
+            otherPlayer = 'b'
+        else:
+            otherPlayer = 'w'
+        
+        #Loop runs twice to get knight moves both above the piece and below
+        for x in range(2):
+            for offset in offsets:
+                targetSquare = square - offset
+                if targetSquare < 0 or targetSquare > 63:
+                    continue
+                else:
+                    if self.board[targetSquare] == '--' or self.board[targetSquare][0] == otherPlayer:
+                        moves.append(Move(square, targetSquare, self.board))
+            #Multiplies offsets by -1 to get the other half of knight moves
+            for index, offset in enumerate(offsets):
+                offsets[index] = offset * -1
 
     def getKingMoves(self, square, moves):
-        pass
+        offsets = [1, 7, 8, 9]
+
+        if self.whiteToMove:
+            otherPlayer = 'b'
+        else:
+            otherPlayer = 'w'
+        
+        #Loop runs twice to get king moves both above the piece and below
+        for x in range(2):
+            for offset in offsets:
+                targetSquare = square - offset
+                if targetSquare < 0 or targetSquare > 63:
+                    continue
+                else:
+                    if self.board[targetSquare] == '--' or self.board[targetSquare][0] == otherPlayer:
+                        moves.append(Move(square, targetSquare, self.board))
+            #Multiplies offsets by -1 to get the other half of king moves
+            for index, offset in enumerate(offsets):
+                offsets[index] = offset * -1
 
 class Move():
     ranksToRows = {"1": 7, "2": 6, "3": 5, "4": 4, "5": 3, "6": 2, "7": 1, "8": 0}
