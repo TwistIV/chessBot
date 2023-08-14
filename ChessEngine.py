@@ -132,6 +132,9 @@ class GameState():
         else:
             otherPlayer = 'w'
 
+        if self.board[square][0] == otherPlayer:
+            return
+
         #Up left moves
         for space in range(min([file-1, 8-rank])):
             #Square being evaluated
@@ -177,6 +180,9 @@ class GameState():
             otherPlayer = 'b'
         else:
             otherPlayer = 'w'
+
+        if self.board[square][0] == otherPlayer:
+            return
         
         #Loop runs twice to get knight moves both above the piece and below
         for x in range(2):
@@ -198,6 +204,9 @@ class GameState():
             otherPlayer = 'b'
         else:
             otherPlayer = 'w'
+
+        if self.board[square][0] == otherPlayer:
+            return
         
         #Loop runs twice to get king moves both above the piece and below
         for x in range(2):

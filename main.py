@@ -5,6 +5,7 @@ CELL_SIZE = 100
 IMAGES = {}
 LIGHT_COLOR = (255, 255, 255)
 DARK_COLOR = (102, 153, 153)
+HIGHLIGHT_COLOR = (204, 204, 255)
 
 '''
 Initialize images
@@ -70,13 +71,14 @@ def main():
             validMoves = gameState.getAllPieceMoves()
             awaitingMove = True
 
-        draw(window, gameState)
+        draw(window, validMoves, moveStartEnd, gameState)
         pygame.display.update()
 
     pygame.quit()
 
-def draw(window, gameState):
+def draw(window, validMoves, moveStartEnd, gameState):
     drawBoard(window)
+    drawMoves(window, validMoves, moveStartEnd)
     drawPieces(window, gameState.board)
 
 def drawBoard(window):
@@ -89,6 +91,17 @@ def drawBoard(window):
                 pygame.draw.rect(window, DARK_COLOR, pygame.Rect(x*CELL_SIZE, y*CELL_SIZE, CELL_SIZE, CELL_SIZE))
             isDarkSquare = not isDarkSquare
         isDarkSquare = not isDarkSquare
+
+def drawMoves(window, validMoves, moveStartEnd):
+    if len(moveStartEnd) == 1:
+        for move in validMoves:
+            if move.startSq == moveStartEnd[0]:
+                rank = 8 - int(move.endSq/8)
+                file = move.endSq%8
+                print("Rank is " + str(rank) + "  and file is " + str(file))
+                print(move.startSq)
+                print(len(validMoves))
+                pygame.draw.rect(window, HIGHLIGHT_COLOR, pygame.Rect(file*CELL_SIZE, (8-rank)*CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
 def drawPieces(window, board):
     for row in range(8):
